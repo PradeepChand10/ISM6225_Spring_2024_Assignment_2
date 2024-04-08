@@ -5,7 +5,8 @@ WRITE YOUR CODE IN THE RESPECTIVE QUESTION FUNCTION BLOCK
 
 
 */
-
+using System;
+using System.Collections.Generic;
 using System.Text;
 
 namespace ISM6225_Spring_2024_Assignment_2
@@ -62,6 +63,8 @@ namespace ISM6225_Spring_2024_Assignment_2
             Console.WriteLine("Question 8:");
             string result = RemoveOccurrences("daabcbaabcbc", "abc");
             Console.WriteLine(result);
+
+            Console.ReadKey();
         }
 
         /*
@@ -99,8 +102,18 @@ namespace ISM6225_Spring_2024_Assignment_2
         {
             try
             {
-                // Write your code here and you can modify the return value according to the requirements
-                return 0;
+                int k = 1;//Variable to use for storing values after removing duplicates
+
+                //Loop to Compare consecutive elements and remove duplicates
+                for(int i = 1; i < nums.Length; i++)
+                {
+                    if (nums[i] != nums[i - 1])
+                    {
+                        nums[k] = nums[i];
+                        k++;
+                    }
+                }
+                return k;
             }
             catch (Exception)
             {
@@ -134,8 +147,26 @@ namespace ISM6225_Spring_2024_Assignment_2
         {
             try
             {
-                // Write your code here and you can modify the return value according to the requirements
-                return new List<int>();
+                int nonZero = 0;
+
+                // Move all non-zero elements to the beginning of the array
+                for (int i = 0; i < nums.Length; i++)
+                {
+                    if (nums[i] != 0)
+                    {
+                        nums[nonZero] = nums[i];
+                        nonZero++;
+                    }
+                }
+
+                // Fill the remaining elements with zeros
+                for (int i = nonZero; i < nums.Length; i++)
+                {
+                    nums[i] = 0;
+                }
+                
+                //Returning final array with zeros at last and numbers in input order
+                return nums;
             }
             catch (Exception)
             {
@@ -185,8 +216,49 @@ namespace ISM6225_Spring_2024_Assignment_2
         {
             try
             {
-                // Write your code here and you can modify the return value according to the requirements
-                return new List<IList<int>>();
+                //Sorting input array
+                Array.Sort(nums);
+
+                //Initializing result list
+                IList<IList<int>> result = new List<IList<int>>();
+
+                for (int i = 0; i < nums.Length - 2; i++)
+                {
+                    // To skip Duplicates
+                    if (i > 0 && nums[i] == nums[i - 1])
+                        continue;
+
+                    int left = i + 1;
+                    int right = nums.Length - 1;
+
+                    while (left < right)
+                    {
+                        int sum = nums[i] + nums[left] + nums[right];
+
+                        //To add triplets to result
+                        if (sum == 0)
+                        {
+                            result.Add(new List<int> { nums[i], nums[left], nums[right] });
+
+                            //To skip duplicates
+                            while (left < right && nums[left] == nums[left + 1])
+                                left++;
+
+                            while (left < right && nums[right] == nums[right - 1])
+                                right--;
+
+                            left++;
+                            right--;
+                        }
+                        else if (sum < 0)
+                            left++;
+                        else
+                            right--;
+                    }
+                }
+
+                //Returning possible triplets
+                return result;
             }
             catch (Exception)
             {
@@ -220,8 +292,25 @@ namespace ISM6225_Spring_2024_Assignment_2
         {
             try
             {
-                // Write your code here and you can modify the return value according to the requirements
-                return 0;
+                // Initialize variables to keep track of maximum consecutive ones and current count
+                int maxCount = 0;
+                int count = 0;
+
+                //Traversing through array
+                foreach (var num in nums)
+                {
+                    if (num == 1)
+                        count++;
+                    //Finding maximum consecutive ones in every loop
+                    else
+                    {
+                        maxCount = Math.Max(maxCount, count);
+                        count = 0;
+                    }
+                }
+
+                //Returning maximum consecutive ones
+                return Math.Max(maxCount, count);
             }
             catch (Exception)
             {
@@ -256,8 +345,22 @@ namespace ISM6225_Spring_2024_Assignment_2
         {
             try
             {
-                // Write your code here and you can modify the return value according to the requirements
-                return 0;
+                //Basevalue for calculating 2 power x values and decimal number for decimal output
+                int decimalNumber = 0;
+                int baseValue = 1;
+
+                //Getting each digit and converting it to decimal through every iteration
+                while (binary > 0)
+                {
+                    int lastDigit = binary % 10;
+                    binary /= 10;
+
+                    decimalNumber += lastDigit * baseValue;
+                    baseValue *= 2;
+                }
+
+                //Returning converted decimal number
+                return decimalNumber;
             }
             catch (Exception)
             {
@@ -294,8 +397,62 @@ namespace ISM6225_Spring_2024_Assignment_2
         {
             try
             {
-                // Write your code here and you can modify the return value according to the requirements
-                return 0;
+                if (nums.Length < 2)
+                    return 0;
+                // Find the maximum element in the array to use for Radix sort
+                int maxNum=0;
+                foreach (var num in nums)
+                {
+                    if (num > maxNum)
+                        maxNum = num;
+                }
+
+                // Radix Sort to sort in linear time
+                int[] count = new int[10]; // Radix of base 10
+                int[] temp = new int[nums.Length];
+                int exp = 1;
+
+                //To find maximum difference between consecutive numbers
+                while (maxNum / exp > 0)
+                {
+                    // Counting sort based on current digit
+                    Array.Fill(count, 0); // Reset count array
+
+                    // Count occurrences of digits
+                    foreach (var num in nums)
+                    {
+                        count[(num / exp) % 10]++;
+                    }
+
+                    // Update count to store the actual position of the digit in output
+                    for (int i = 1; i < 10; i++)
+                    {
+                        count[i] += count[i - 1];
+                    }
+
+                    // Build the sorted array
+                    for (int i = nums.Length - 1; i >= 0; i--)
+                    {
+                        temp[count[(nums[i] / exp) % 10] - 1] = nums[i];
+                        count[(nums[i] / exp) % 10]--;
+                    }
+
+                    // Copy sorted elements back to the original array
+                    Array.Copy(temp, nums, nums.Length);
+
+                    // Move to the next digit
+                    exp *= 10;
+                }
+
+                // Calculate the maximum gap
+                int maxGap = 0;
+                for (int i = 1; i < nums.Length; i++)
+                {
+                    maxGap = Math.Max(maxGap, nums[i] - nums[i - 1]);
+                }
+
+                //Returning maximum difference between consecutive elements
+                return maxGap;
             }
             catch (Exception)
             {
@@ -334,7 +491,20 @@ namespace ISM6225_Spring_2024_Assignment_2
         {
             try
             {
-                // Write your code here and you can modify the return value according to the requirements
+                // Sort the input array nums in descending order
+                Array.Sort(nums, (a, b) => b.CompareTo(a));
+
+                //Iterating through array
+                for (int i = 0; i < nums.Length - 2; i++)
+                {
+                    //Checking for validity of triangle with current 3 values
+                    if (nums[i] < nums[i + 1] + nums[i + 2])
+                    {
+                        //Returning maximum perimeter
+                        return nums[i] + nums[i + 1] + nums[i + 2];
+                    }
+                }
+
                 return 0;
             }
             catch (Exception)
@@ -388,8 +558,18 @@ namespace ISM6225_Spring_2024_Assignment_2
         {
             try
             {
-                // Write your code here and you can modify the return value according to the requirements
-                return "";
+                int index;
+
+                // Repeat until no occurrence of part is found in s
+                while ((index = s.IndexOf(part)) != -1)
+                {
+
+                    // Remove the leftmost occurrence of part from s
+                    s = s.Remove(index, part.Length);
+                }
+
+                //returning final string after removing substring
+                return s;
             }
             catch (Exception)
             {
